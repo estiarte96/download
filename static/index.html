@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Descarregador de Vídeo i Música</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="container">
+    
+    <header class="header">
+      <h1>📥 Descarregador Multimèdia</h1>
+      <p>Descarrega vídeos, àudios i llistes completes directament al teu ordinador</p>
+    </header>
+
+    <main class="card">
+      
+      <!-- Input URL -->
+      <div class="input-group">
+        <label for="video-url">Enllaç del vídeo o llista de reproducció:</label>
+        <div class="input-wrapper">
+          <input type="url" id="video-url" placeholder="https://www.youtube.com/watch?v=... o llista" required autofocus>
+          <button type="button" id="btn-paste" class="btn-secondary">📋 Enganxar</button>
+        </div>
+      </div>
+
+      <!-- Selector de Formats -->
+      <div>
+        <span class="section-title">Format de descàrrega:</span>
+        <div class="formats-grid">
+          
+          <label class="format-option">
+            <input type="radio" name="format" value="mp4" checked>
+            <div class="format-card">
+              <span class="format-icon">🎬</span>
+              <span class="format-label">MP4</span>
+              <span class="format-desc">Vídeo estàndard</span>
+            </div>
+          </label>
+
+          <label class="format-option">
+            <input type="radio" name="format" value="webm">
+            <div class="format-card">
+              <span class="format-icon">🌐</span>
+              <span class="format-label">WEBM</span>
+              <span class="format-desc">Alta eficiència</span>
+            </div>
+          </label>
+
+          <label class="format-option">
+            <input type="radio" name="format" value="mp3">
+            <div class="format-card">
+              <span class="format-icon">🎵</span>
+              <span class="format-label">MP3</span>
+              <span class="format-desc">Només música</span>
+            </div>
+          </label>
+
+        </div>
+      </div>
+
+      <!-- Opcions de Descàrrega -->
+      <div class="switch-group">
+        <div>
+          <div class="switch-label-title">📂 Organització automàtica per carpetes</div>
+          <div class="switch-label-desc">Si és una llista de reproducció, crea una carpeta amb el seu nom. Si és un arxiu sol, es desa directament a Descàrregues.</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="playlist-toggle" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <!-- Botó Descarregar -->
+      <button id="btn-download" class="btn-primary">
+        <span>⬇️ Iniciar Descàrrega</span>
+      </button>
+
+      <!-- Panell de Progrés en Temps Real -->
+      <div id="status-card" class="status-card">
+        <div class="status-header">
+          <span id="status-badge" class="status-badge">Preparant</span>
+          <span id="playlist-progress" style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;"></span>
+        </div>
+
+        <div id="status-title" class="status-title">Processant enllaç...</div>
+
+        <div class="progress-bar-bg">
+          <div id="progress-bar-fill" class="progress-bar-fill"></div>
+        </div>
+
+        <div class="status-meta">
+          <span id="progress-percent">0%</span>
+          <span id="download-speed"></span>
+          <span id="download-eta"></span>
+        </div>
+
+        <div id="destination-info" class="destination-info">
+          <span>📁</span>
+          <span id="destination-text">Destí: Descàrregues</span>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
