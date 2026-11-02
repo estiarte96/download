@@ -54,6 +54,27 @@ def clean_filename(title: str) -> str:
     return cleaned or "Descarrega"
 
 
+def get_downloads_base() -> Path:
+    """Retorna la carpeta de descàrregues amb creació segura i fallback automàtic."""
+    candidates = [
+        HOME_DIR / "Downloads",
+        Path(__file__).parent / "downloads",
+        Path("/tmp/downloads")
+    ]
+    for candidate in candidates:
+        try:
+            candidate.mkdir(parents=True, exist_ok=True)
+            test_file = candidate / ".write_test"
+            test_file.touch()
+            test_file.unlink()
+            return candidate
+        except Exception:
+            continue
+    fallback = Path.cwd() / "downloads"
+    fallback.mkdir(parents=True, exist_ok=True)
+    return fallback
+
+
 class DownloadManager:
     def __init__(self, websocket: WebSocket):
         self.ws = websocket
@@ -101,8 +122,7 @@ class DownloadManager:
             })
 
     def run_download(self, url: str, format_choice: str, is_playlist_allowed: bool):
-        downloads_base = HOME_DIR / "Downloads"
-        downloads_base.mkdir(exist_ok=True)
+        downloads_base = get_downloads_base()
 
         ydl_opts_info = {
             "extract_flat": True,
@@ -129,16 +149,18 @@ class DownloadManager:
         if not is_playlist_allowed:
             is_playlist = False
 
-        # Configurar la carpeta de destí
+        # Configurar la carpeta de destí amb parents=True
+        base_name = downloads_base.name
         if is_playlist:
             target_folder = downloads_base / playlist_title
-            target_folder.mkdir(exist_ok=True)
+            target_folder.mkdir(parents=True, exist_ok=True)
             out_template = str(target_folder / "%(playlist_index)02d - %(title)s.%(ext)s")
-            destination_description = f"Downloads/{playlist_title}"
+            destination_description = f"{base_name}/{playlist_title}"
         else:
             target_folder = downloads_base
+            target_folder.mkdir(parents=True, exist_ok=True)
             out_template = str(target_folder / "%(title)s.%(ext)s")
-            destination_description = "Downloads"
+            destination_description = base_name
 
         self.send_ws({
             "type": "start",
