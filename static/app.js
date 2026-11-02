@@ -15,6 +15,22 @@ const downloadSpeed = document.getElementById("download-speed");
 const downloadEta = document.getElementById("download-eta");
 const destinationInfo = document.getElementById("destination-info");
 const destinationText = document.getElementById("destination-text");
+const btnOpenFolder = document.getElementById("btn-open-folder");
+
+let currentDestinationPath = "";
+
+btnOpenFolder.addEventListener("click", async () => {
+  if (!currentDestinationPath) return;
+  try {
+    await fetch("/api/open-folder", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ path: currentDestinationPath })
+    });
+  } catch (err) {
+    console.error("Error en obrir carpeta:", err);
+  }
+});
 
 function connectWebSocket() {
   const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
@@ -47,6 +63,8 @@ function handleServerMessage(data) {
     statusBadge.className = "status-badge downloading";
     statusTitle.textContent = data.title || "Començant descàrrega...";
     destinationText.textContent = `Destí: ~/${data.destination}`;
+    currentDestinationPath = data.destination_path || "";
+    btnOpenFolder.style.display = "none";
     progressBarFill.style.width = "0%";
     progressPercent.textContent = "0%";
     downloadSpeed.textContent = "";
@@ -85,6 +103,8 @@ function handleServerMessage(data) {
     downloadSpeed.textContent = "✨ Finalitzat";
     downloadEta.textContent = "";
     destinationText.textContent = `Desat a: ~/${data.destination}`;
+    currentDestinationPath = data.destination_path || "";
+    btnOpenFolder.style.display = "inline-block";
     btnDownload.disabled = false;
     btnDownload.innerHTML = "<span>⬇️ Iniciar Descàrrega</span>";
   } else if (data.type === "error") {
