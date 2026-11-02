@@ -211,3 +211,4 @@ async def websocket_endpoint(websocket: WebSocket):
             await websocket.send_json({"type": "error", "message": str(e)})
         except:
             pass
+

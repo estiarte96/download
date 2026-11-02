@@ -144,3 +144,4 @@ btnDownload.addEventListener("click", () => {
 
 // Connectar WebSocket a l'inici
 connectWebSocket();
+
