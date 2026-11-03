@@ -16,8 +16,20 @@ const downloadEta = document.getElementById("download-eta");
 const destinationInfo = document.getElementById("destination-info");
 const destinationText = document.getElementById("destination-text");
 const btnOpenFolder = document.getElementById("btn-open-folder");
+const connectionStatus = document.getElementById("connection-status");
 
 let currentDestinationPath = "";
+
+function updateConnectionIndicator(connected) {
+  if (!connectionStatus) return;
+  if (connected) {
+    connectionStatus.textContent = "● Servidor connectat";
+    connectionStatus.style.color = "#22c55e";
+  } else {
+    connectionStatus.textContent = "○ Connectant amb el servidor...";
+    connectionStatus.style.color = "#eab308";
+  }
+}
 
 btnOpenFolder.addEventListener("click", async () => {
   if (!currentDestinationPath) return;
@@ -38,6 +50,7 @@ function connectWebSocket() {
 
   ws.onopen = () => {
     console.log("WebSocket connectat");
+    updateConnectionIndicator(true);
   };
 
   ws.onmessage = (event) => {
@@ -47,11 +60,13 @@ function connectWebSocket() {
 
   ws.onclose = () => {
     console.log("WebSocket desconnectat, reconnectant en 2 segons...");
+    updateConnectionIndicator(false);
     setTimeout(connectWebSocket, 2000);
   };
 
   ws.onerror = (err) => {
     console.error("Error WebSocket:", err);
+    updateConnectionIndicator(false);
   };
 }
 
@@ -117,15 +132,26 @@ function handleServerMessage(data) {
   }
 }
 
-// Botó Enganxar
+// Gestionar la tecla Enter a l'input
+inputUrl.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    btnDownload.click();
+  }
+});
+
+// Botó Enganxar amb millor compatibilitat
 btnPaste.addEventListener("click", async () => {
   try {
     const text = await navigator.clipboard.readText();
     if (text) {
       inputUrl.value = text.trim();
+      inputUrl.focus();
     }
   } catch (err) {
+    // Si el navegador bloqueja l'accés al porta-retalls automàtic
     inputUrl.focus();
+    inputUrl.select();
   }
 });
 
@@ -134,11 +160,21 @@ btnDownload.addEventListener("click", () => {
   const url = inputUrl.value.trim();
   if (!url) {
     alert("Si us plau, enganxa un enllaç primer.");
+    inputUrl.focus();
     return;
   }
 
   const selectedFormat = document.querySelector('input[name="format"]:checked').value;
   const isPlaylist = playlistToggle.checked;
+
+  if (!ws || ws.readyState !== WebSocket.OPEN) {
+    statusCard.style.display = "flex";
+    statusBadge.textContent = "Error";
+    statusBadge.className = "status-badge error";
+    statusTitle.textContent = "El servidor s'està connectant. Espera 2 segons i torna a provar-ho.";
+    connectWebSocket();
+    return;
+  }
 
   // Actualitzar interfície
   btnDownload.disabled = true;

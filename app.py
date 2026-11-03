@@ -3,6 +3,7 @@ import sys
 import asyncio
 import json
 import re
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -124,10 +125,14 @@ class DownloadManager:
     def run_download(self, url: str, format_choice: str, is_playlist_allowed: bool):
         downloads_base = get_downloads_base()
 
+        node_path = shutil.which("node")
+        js_runtimes = {"node": {"path": node_path}} if node_path else {}
+
         ydl_opts_info = {
             "extract_flat": True,
             "quiet": True,
             "no_warnings": True,
+            "js_runtimes": js_runtimes,
         }
 
         # Analitzar ràpidament l'enllaç
@@ -176,6 +181,7 @@ class DownloadManager:
             "progress_hooks": [self.progress_hook],
             "ignoreerrors": True,
             "no_color": True,
+            "js_runtimes": js_runtimes,
         }
 
         if format_choice == "mp3":
