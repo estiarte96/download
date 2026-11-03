@@ -15,12 +15,13 @@ import yt_dlp
 
 # Assegurem les rutes al PATH
 HOME_DIR = Path.home()
+DENO_BIN = HOME_DIR / ".deno" / "bin"
 LOCAL_BIN = HOME_DIR / ".local" / "bin"
 OPT_HOMEBREW = Path("/opt/homebrew/bin")
 USR_LOCAL_BIN = Path("/usr/local/bin")
 
 current_path = os.environ.get("PATH", "")
-extra_paths = [str(LOCAL_BIN), str(OPT_HOMEBREW), str(USR_LOCAL_BIN)]
+extra_paths = [str(DENO_BIN), str(LOCAL_BIN), str(OPT_HOMEBREW), str(USR_LOCAL_BIN)]
 os.environ["PATH"] = os.pathsep.join(extra_paths + [current_path])
 
 app = FastAPI(title="Descarregador Multimèdia")
@@ -125,14 +126,11 @@ class DownloadManager:
     def run_download(self, url: str, format_choice: str, is_playlist_allowed: bool):
         downloads_base = get_downloads_base()
 
-        node_path = shutil.which("node")
-        js_runtimes = {"node": {"path": node_path}} if node_path else {}
-
         ydl_opts_info = {
             "extract_flat": True,
             "quiet": True,
             "no_warnings": True,
-            "js_runtimes": js_runtimes,
+            "remote_components": ["ejs:github"],
         }
 
         # Analitzar ràpidament l'enllaç
@@ -181,7 +179,7 @@ class DownloadManager:
             "progress_hooks": [self.progress_hook],
             "ignoreerrors": True,
             "no_color": True,
-            "js_runtimes": js_runtimes,
+            "remote_components": ["ejs:github"],
         }
 
         if format_choice == "mp3":
